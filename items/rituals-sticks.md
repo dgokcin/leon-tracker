@@ -7,11 +7,11 @@ status: todo
 priority: high
 budget: ""
 picked: ""
-deniz_rec: ""
+deniz_rec: "[Ritual of Hammam fragrance sticks 250ml](https://www.rituals.com/en-nl/the-ritual-of-hammam-fragrance-sticks-250ml-1120423.html) — good for toilet"
 notes: ""
 tags: [leon]
 creation date: 2026-07-31 21:32
-modification date: 2026-07-31 21:32
+modification date: 2026-08-01 00:00
 ---
 # fragrance sticks from rituals
 
@@ -21,7 +21,7 @@ Rituals reed diffuser / fragrance sticks. Pick scent + refill availability.
 
 ## Deniz's recommendation
 
-*Deniz's pick + one line on why. Mirror the short version into `deniz_rec` so it shows in the dashboard.*
+[The Ritual of Hammam fragrance sticks 250ml](https://www.rituals.com/en-nl/the-ritual-of-hammam-fragrance-sticks-250ml-1120423.html) — good scent for the toilet.
 
 ## Options
 
@@ -29,7 +29,7 @@ Rituals reed diffuser / fragrance sticks. Pick scent + refill availability.
 
 | Option | Price | Why |
 | --- | --- | --- |
-|  |  |  |
+| [Ritual of Hammam sticks 250ml](https://www.rituals.com/en-nl/the-ritual-of-hammam-fragrance-sticks-250ml-1120423.html) |  | Deniz's rec — toilet |
 |  |  |  |
 
 ## Decision
