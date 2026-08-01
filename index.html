@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>leon's shit tracker</title>
+<style>
+  body { background:#111; color:#ddd; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+         margin:0 auto; max-width:1100px; padding:24px 16px; }
+  a { color:#8ab4f8; text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  h1 { font-size:1.4em; margin:0 0 4px; }
+  .sub { opacity:0.5; font-size:0.85em; margin-bottom:18px; }
+  table { border-collapse:collapse; font-size:0.85em; min-width:860px; width:100%; }
+  th, td { border-bottom:1px solid #2a2a2a; padding:5px 8px; vertical-align:top; text-align:left; }
+  input[type=checkbox], label { cursor:pointer; }
+  code { background:#222; border-radius:3px; padding:0 4px; }
+</style>
+</head>
+<body>
+<h1>leon's shit tracker</h1>
+<div class="sub">
+  Edit any item on GitHub (click its name, then the ✏️ pencil) — the page rebuilds on push.
+  <a href="https://github.com/dgokcin/leon-tracker">repo</a>
+</div>
+<div id="app">loading…</div>
+<script>
+// Port of the Obsidian leonTracker DataviewJS view — same badges, budget bar,
+// group-by toggle (persisted in localStorage), needs-pick + hide-done filters.
+const REPO_BLOB = "https://github.com/dgokcin/leon-tracker/blob/main/items/";
+const budgetLow = 5000, budgetHigh = 7000;
+
+const STATUSES = [
+  { key: "todo",        label: "To Do",       icon: "⏳", bg: "#1a1a2e", fg: "#9b9bcf", bdr: "#2a2a4a" },
+  { key: "researching", label: "Researching", icon: "🔍", bg: "#1a1a3a", fg: "#bb86fc", bdr: "#3a3a6a" },
+  { key: "decided",     label: "Decided",     icon: "✔️", bg: "#0d1a2e", fg: "#56cfe1", bdr: "#1a3a5a" },
+  { key: "bought",      label: "Bought",      icon: "📦", bg: "#3a2a10", fg: "#f2994a", bdr: "#6b4a1a" },
+  { key: "done",        label: "Done",        icon: "✅", bg: "#1a3a1a", fg: "#6fcf97", bdr: "#2d5a2d" },
+  { key: "dropped",     label: "Dropped",     icon: "🚫", bg: "#1a1a1a", fg: "#888888", bdr: "#333333" },
+];
+const statusMeta = (s) => STATUSES.find((x) => x.key === s) ?? STATUSES[0];
+const isClosed = (p) => p.status === "done" || p.status === "dropped";
+
+const PRIORITIES = [
+  { key: "high",   label: "High",   fg: "#ff6b6b", bg: "#3a1414", bdr: "#6b2a2a" },
+  { key: "medium", label: "Medium", fg: "#f2994a", bg: "#3a2a10", bdr: "#6b4a1a" },
+  { key: "low",    label: "Low",    fg: "#9b9bcf", bg: "#1a1a2e", bdr: "#2a2a4a" },
+];
+const prioMeta = (p) => PRIORITIES.find((x) => x.key === p) ?? PRIORITIES[2];
+const prioRank = (p) => PRIORITIES.findIndex((x) => x.key === p.priority);
+
+const CATEGORY_ICONS = {
+  kitchen: "🍽️", "living-room": "🛋️", bedroom: "🛏️", balcony: "🌤️",
+  electronics: "🔌", grooming: "✂️", bathroom: "🚿", "home-scent": "🕯️",
+  clothing: "👕", plants: "🪴", household: "🧹", storage: "🔐",
+  "home-maintenance": "🐭", health: "👁️", admin: "📮",
+};
+const catIcon = (c) => CATEGORY_ICONS[c] ?? "📦";
+
+// Minimal one-line markdown: escape HTML, then [text](url), **bold**, `code`.
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const md = (s) => esc(String(s ?? ""))
+  .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+  .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+  .replace(/`([^`]+)`/g, "<code>$1</code>");
+
+const badge = (label, count, bg, fg, bdr) =>
+  `<div style="background:${bg};border:1px solid ${bdr};border-radius:6px;padding:10px 18px;color:${fg};min-width:78px;text-align:center">
+    <div style="font-size:1.8em;font-weight:bold;line-height:1">${count}</div>
+    <div style="font-size:0.75em;opacity:0.8;margin-top:4px">${label}</div>
+  </div>`;
+
+const budgetOf = (p) => {
+  const n = Number(String(p.budget ?? "").replace(/[^0-9.]/g, ""));
+  return isNaN(n) ? 0 : n;
+};
+
+const groupBy = (keyFn, order, titleFn, colorFn, pages) => {
+  const buckets = new Map();
+  pages.forEach((p) => {
+    const k = keyFn(p) || "uncategorised";
+    if (!buckets.has(k)) buckets.set(k, []);
+    buckets.get(k).push(p);
+  });
+  const keys = [...buckets.keys()].sort((a, b) => {
+    const ia = order.indexOf(a), ib = order.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b);
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+  return keys.map((k) => ({
+    title: titleFn(k, buckets.get(k).length),
+    color: colorFn(k),
+    pages: buckets.get(k).sort((a, b) => prioRank(a) - prioRank(b) || a.title.localeCompare(b.title)),
+  }));
+};
+
+const GROUPERS = {
+  category: (pages) => groupBy(
+    (p) => p.category, Object.keys(CATEGORY_ICONS),
+    (k, n) => `${catIcon(k)} ${k} (${n})`, () => "#9b9bcf", pages),
+  status: (pages) => groupBy(
+    (p) => p.status, STATUSES.map((s) => s.key),
+    (k, n) => `${statusMeta(k).icon} ${statusMeta(k).label} (${n})`,
+    (k) => statusMeta(k).fg, pages),
+  priority: (pages) => groupBy(
+    (p) => p.priority, PRIORITIES.map((x) => x.key),
+    (k, n) => `${prioMeta(k).label} priority (${n})`,
+    (k) => prioMeta(k).fg, pages),
+};
+
+const tdStyle = "border-bottom:1px solid #2a2a2a;padding:5px 8px;vertical-align:top";
+const pill = (text, fg, bg, bdr) =>
+  `<span style="background:${bg};border:1px solid ${bdr};color:${fg};border-radius:4px;padding:1px 6px;font-size:0.8em;white-space:nowrap">${text}</span>`;
+
+const openTasks = (p) => {
+  if (!p.tasksTotal) return `<span style="opacity:0.3">—</span>`;
+  const open = p.tasksTotal - p.tasksDone;
+  const color = open === 0 ? "#6fcf97" : open > 2 ? "#f2994a" : "#9b9bcf";
+  return `<span style="color:${color};font-size:0.85em">${p.tasksDone}/${p.tasksTotal}</span>`;
+};
+
+const pickedCell = (p) => {
+  const v = String(p.picked ?? "").trim();
+  return v ? md(v) : `<span style="opacity:0.3">—</span>`;
+};
+
+const recCell = (p) => {
+  const v = String(p.deniz_rec ?? "").trim();
+  if (!v) return `<span style="opacity:0.3">—</span>`;
+  return `<span style="border-left:2px solid #bb86fc;padding-left:6px;color:#d9c2ff">${md(v)}</span>`;
+};
+
+const budgetCell = (p) => {
+  const v = String(p.budget ?? "").trim();
+  return v ? `<span style="color:#6fcf97">${/^[0-9]/.test(v) ? "€" + esc(v) : esc(v)}</span>` : `<span style="opacity:0.3">—</span>`;
+};
+
+const rowsFor = (pages, groupKey) => pages.map((p) => {
+  const s = statusMeta(p.status);
+  const pr = prioMeta(p.priority);
+  return `<tr style="opacity:${isClosed(p) ? 0.5 : 1}">
+    <td style="${tdStyle}">${p.kind === "do" ? "🛠️" : "🛒"} <a href="${REPO_BLOB}${encodeURIComponent(p.file)}" target="_blank" rel="noopener">${esc(p.title)}</a></td>
+    ${groupKey === "category" ? "" : `<td style="${tdStyle};opacity:0.7;font-size:0.85em">${catIcon(p.category)} ${esc(p.category)}</td>`}
+    ${groupKey === "status"   ? "" : `<td style="${tdStyle}">${pill(`${s.icon} ${s.label}`, s.fg, s.bg, s.bdr)}</td>`}
+    ${groupKey === "priority" ? "" : `<td style="${tdStyle}">${pill(pr.label, pr.fg, pr.bg, pr.bdr)}</td>`}
+    <td style="${tdStyle};text-align:right">${budgetCell(p)}</td>
+    <td style="${tdStyle};font-size:0.85em">${recCell(p)}</td>
+    <td style="${tdStyle};font-size:0.85em">${pickedCell(p)}</td>
+    <td style="${tdStyle};text-align:center">${openTasks(p)}</td>
+    <td style="${tdStyle};opacity:0.6;font-size:0.85em">${md(p.notes)}</td>
+  </tr>`;
+}).join("");
+
+const headRow = (groupKey) => `
+  <tr style="opacity:0.4;font-size:0.8em">
+    <th style="${tdStyle}">Item</th>
+    ${groupKey === "category" ? "" : `<th style="${tdStyle}">Category</th>`}
+    ${groupKey === "status"   ? "" : `<th style="${tdStyle}">Status</th>`}
+    ${groupKey === "priority" ? "" : `<th style="${tdStyle}">Prio</th>`}
+    <th style="${tdStyle};text-align:right">Budget</th>
+    <th style="${tdStyle}">Deniz rec</th>
+    <th style="${tdStyle}">Picked</th>
+    <th style="${tdStyle};text-align:center">Tasks</th>
+    <th style="${tdStyle}">Notes</th>
+  </tr>`;
+
+const section = (g, groupKey) => `
+  <div style="margin-bottom:18px">
+    <div style="font-weight:600;font-size:0.9em;color:${g.color};margin-bottom:6px;letter-spacing:0.04em">${g.title}</div>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+      <table>${headRow(groupKey) + rowsFor(g.pages, groupKey)}</table>
+    </div>
+  </div>`;
+
+fetch("items.json").then((r) => r.json()).then((items) => {
+  const closed = items.filter(isClosed).length;
+  const pct = items.length > 0 ? Math.round((closed / items.length) * 100) : 0;
+  const highOpen = items.filter((p) => p.priority === "high" && !isClosed(p)).length;
+  const budgetTotal = items.reduce((s, p) => s + budgetOf(p), 0);
+  const withRec = items.filter((p) => String(p.deniz_rec ?? "").trim() !== "").length;
+
+  const badgesHtml = `
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:flex-end">
+      ${STATUSES.filter((s) => items.some((p) => p.status === s.key))
+        .map((s) => badge(s.label, items.filter((p) => p.status === s.key).length, s.bg, s.fg, s.bdr)).join("")}
+      ${highOpen > 0 ? badge("High prio open", highOpen, "#3a1414", "#ff6b6b", "#6b2a2a") : ""}
+      <div style="background:#0d1a2e;border:1px solid #1a3a5a;border-radius:6px;padding:10px 18px;color:#56cfe1;min-width:78px;text-align:center">
+        <div style="font-size:1.8em;font-weight:bold;line-height:1">${pct}%</div>
+        <div style="font-size:0.75em;opacity:0.8;margin-top:4px">${closed}/${items.length} settled</div>
+      </div>
+      ${badge("Deniz picked", `${withRec}/${items.length}`, "#1a1a3a", "#bb86fc", "#3a3a6a")}
+    </div>`;
+
+  const progressHtml = `
+    <div style="margin-bottom:6px">
+      <div style="font-size:0.75em;opacity:0.5;margin-bottom:4px">Progress · ${closed}/${items.length} settled</div>
+      <div style="height:6px;background:#222;border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#2d5a2d,#6fcf97)"></div>
+      </div>
+    </div>`;
+
+  const budgetPct = Math.min(100, Math.round((budgetTotal / budgetHigh) * 100));
+  const overBudget = budgetTotal > budgetHigh;
+  const budgetFg = overBudget ? "#ff6b6b" : budgetTotal >= budgetLow ? "#f2994a" : "#6fcf97";
+  const budgetHtml = `
+    <div style="margin-bottom:18px">
+      <div style="font-size:0.75em;opacity:0.6;margin-bottom:4px">
+        Budget · <span style="color:${budgetFg};font-weight:600">€${Math.round(budgetTotal)}</span>
+        of €${budgetLow}–€${budgetHigh}${overBudget ? ` · <span style="color:#ff6b6b">€${Math.round(budgetTotal - budgetHigh)} over</span>` : ` · €${Math.round(budgetHigh - budgetTotal)} left`}
+        · ${items.filter((p) => budgetOf(p) > 0).length}/${items.length} priced
+      </div>
+      <div style="position:relative;height:6px;background:#222;border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${budgetPct}%;background:${overBudget ? "#ff6b6b" : `linear-gradient(90deg,#2d5a2d,${budgetFg})`}"></div>
+        <div style="position:absolute;top:0;left:${Math.round((budgetLow / budgetHigh) * 100)}%;width:1px;height:100%;background:#888"></div>
+      </div>
+    </div>`;
+
+  const controlsHtml = `
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:14px;font-size:0.85em;opacity:0.85">
+      <span style="opacity:0.6">Group by</span>
+      ${["category", "status", "priority"].map((k) => `
+        <label style="display:flex;align-items:center;gap:5px">
+          <input type="checkbox" id="lt-${k}"><span>${k}</span>
+        </label>`).join("")}
+      <label style="display:flex;align-items:center;gap:5px;margin-left:auto">
+        <input type="checkbox" id="lt-needsrec"><span>needs Deniz's pick</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:5px">
+        <input type="checkbox" id="lt-hide"><span>hide done/dropped</span>
+      </label>
+    </div>`;
+
+  const buildBody = (groupKey, hideDone, needsRec) => {
+    const pages = items
+      .filter((p) => !(hideDone && isClosed(p)))
+      .filter((p) => !(needsRec && String(p.deniz_rec ?? "").trim() !== ""));
+    if (!pages.length) return `<div style="opacity:0.5;font-size:0.9em">Nothing to show.</div>`;
+    return GROUPERS[groupKey](pages).map((g) => section(g, groupKey)).join("");
+  };
+
+  const app = document.getElementById("app");
+  app.innerHTML = `${badgesHtml}${progressHtml}${budgetHtml}${controlsHtml}<div id="lt-body"></div>`;
+
+  const GROUP_KEY = "leonTracker:groupBy";
+  const HIDE_KEY = "leonTracker:hideDone";
+  const REC_KEY = "leonTracker:needsRec";
+  let groupKey = GROUPERS[localStorage.getItem(GROUP_KEY)] ? localStorage.getItem(GROUP_KEY) : "category";
+  let hideDone = localStorage.getItem(HIDE_KEY) === "true";
+  let needsRec = localStorage.getItem(REC_KEY) === "true";
+
+  const bodyEl = document.getElementById("lt-body");
+  const hideEl = document.getElementById("lt-hide");
+  const recEl = document.getElementById("lt-needsrec");
+  const groupEls = Object.fromEntries(["category", "status", "priority"].map((k) => [k, document.getElementById(`lt-${k}`)]));
+
+  const render = () => {
+    Object.entries(groupEls).forEach(([k, el]) => { el.checked = k === groupKey; });
+    hideEl.checked = hideDone;
+    recEl.checked = needsRec;
+    localStorage.setItem(GROUP_KEY, groupKey);
+    localStorage.setItem(HIDE_KEY, String(hideDone));
+    localStorage.setItem(REC_KEY, String(needsRec));
+    bodyEl.innerHTML = buildBody(groupKey, hideDone, needsRec);
+  };
+
+  Object.entries(groupEls).forEach(([k, el]) =>
+    el.addEventListener("change", () => { groupKey = k; render(); }));
+  hideEl.addEventListener("change", () => { hideDone = hideEl.checked; render(); });
+  recEl.addEventListener("change", () => { needsRec = recEl.checked; render(); });
+
+  render();
+}).catch((e) => {
+  document.getElementById("app").textContent = `failed to load items.json: ${e}`;
+});
+</script>
+</body>
+</html>
