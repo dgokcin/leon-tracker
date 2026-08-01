@@ -20,14 +20,13 @@
 <body>
 <h1>leon's shit tracker</h1>
 <div class="sub">
-  Edit any item on GitHub (click its name, then the ✏️ pencil) — the page rebuilds on push.
+  Click an item for details; each item page has an ✏️ edit link — the site rebuilds on push.
   <a href="https://github.com/dgokcin/leon-tracker">repo</a>
 </div>
 <div id="app">loading…</div>
 <script>
 // Port of the Obsidian leonTracker DataviewJS view — same badges, budget bar,
 // group-by toggle (persisted in localStorage), needs-pick + hide-done filters.
-const REPO_BLOB = "https://github.com/dgokcin/leon-tracker/blob/main/items/";
 const budgetLow = 5000, budgetHigh = 7000;
 
 const STATUSES = [
@@ -141,7 +140,7 @@ const rowsFor = (pages, groupKey) => pages.map((p) => {
   const s = statusMeta(p.status);
   const pr = prioMeta(p.priority);
   return `<tr style="opacity:${isClosed(p) ? 0.5 : 1}">
-    <td style="${tdStyle}">${p.kind === "do" ? "🛠️" : "🛒"} <a href="${REPO_BLOB}${encodeURIComponent(p.file)}" target="_blank" rel="noopener">${esc(p.title)}</a></td>
+    <td style="${tdStyle}">${p.kind === "do" ? "🛠️" : "🛒"} <a href="item.html?f=${encodeURIComponent(p.file)}">${esc(p.title)}</a></td>
     ${groupKey === "category" ? "" : `<td style="${tdStyle};opacity:0.7;font-size:0.85em">${catIcon(p.category)} ${esc(p.category)}</td>`}
     ${groupKey === "status"   ? "" : `<td style="${tdStyle}">${pill(`${s.icon} ${s.label}`, s.fg, s.bg, s.bdr)}</td>`}
     ${groupKey === "priority" ? "" : `<td style="${tdStyle}">${pill(pr.label, pr.fg, pr.bg, pr.bdr)}</td>`}

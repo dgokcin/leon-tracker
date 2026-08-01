@@ -44,7 +44,9 @@ const items = fs.readdirSync(ITEMS_DIR).filter((f) => f.endsWith(".md")).map((f)
 }).filter(Boolean);
 
 fs.rmSync(DIST, { recursive: true, force: true });
-fs.mkdirSync(DIST);
+fs.mkdirSync(path.join(DIST, "items"), { recursive: true });
 fs.writeFileSync(path.join(DIST, "items.json"), JSON.stringify(items, null, 2));
 fs.copyFileSync(path.join(__dirname, "index.html"), path.join(DIST, "index.html"));
+fs.copyFileSync(path.join(__dirname, "item.html"), path.join(DIST, "item.html"));
+for (const it of items) fs.copyFileSync(path.join(ITEMS_DIR, it.file), path.join(DIST, "items", it.file));
 console.log(`built ${items.length} items -> dist/`);

@@ -7,7 +7,8 @@ Budget band: **€5,000–€7,000**.
 
 ## How to update an item (no local setup needed)
 
-1. Open the item in [`items/`](items/) and click the ✏️ pencil to edit in the browser.
+1. Click the item on the dashboard, then **✏️ edit on GitHub** (top right) — edits in the browser.
+   (Or open it in [`items/`](items/) directly.)
 2. Change the frontmatter fields at the top:
    - `status` — `todo` → `researching` → `decided` → `bought` / `done`; `dropped` to kill it
    - `priority` — `high` / `medium` / `low`
