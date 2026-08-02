@@ -3,15 +3,15 @@ type: leon-item
 title: fix the bedroom cable situation
 category: bedroom
 kind: do
-status: todo
+status: researching
 priority: high
-budget: ""
+budget: "50"
 picked: ""
-deniz_rec: ""
+deniz_rec: "[IKEA BRIMNES](https://www.ikea.com/nl/nl/cat/nachtkastjes-bedtafeltjes-20656/) + SMÅHAGEL 3-port USB — drawer hides charger + slack cable"
 notes: ""
 tags: [leon]
 creation date: 2026-07-31 21:32
-modification date: 2026-07-31 21:32
+modification date: 2026-08-02 12:00
 ---
 # fix the bedroom cable situation
 
@@ -21,16 +21,15 @@ Nightstand plus cable management so the phone charges next to the bed instead of
 
 ## Deniz's recommendation
 
-*Deniz's pick + one line on why. Mirror the short version into `deniz_rec` so it shows in the dashboard.*
+[IKEA BRIMNES nachtkastje](https://www.ikea.com/nl/nl/cat/nachtkastjes-bedtafeltjes-20656/) + [SMÅHAGEL 3-poorts USB-lader](https://www.ikea.com/nl/nl/p/smahagel-usb-lader-met-3-poorten-wit-60539177/) (€4.99) + SITTBRUNN USB-C 1m (€2.99) + KALKSTUFF clips (€1.99) — the drawer swallows the charger and slack cable, so cable management is basically free. ~€50 total.
 
 ## Options
 
-*Alternatives to compare — fill in with links + price, mark the winner in `picked`.*
-
 | Option | Price | Why |
 | --- | --- | --- |
-|  |  |  |
-|  |  |  |
+| [IKEA KNARREVIK + charger kit](https://www.ikea.com/nl/nl/cat/nachtkastjes-bedtafeltjes-20656/) | €24.96 | metal box nightstand, floor price, no drawer |
+| [IKEA BRIMNES + charger kit](https://www.ikea.com/nl/nl/cat/nachtkastjes-bedtafeltjes-20656/) | €49.96 | drawer + open shelf — hides the charger brick |
+| [IKEA HEMNES + charger kit](https://www.ikea.com/nl/nl/p/hemnes-nachtkastje-grijsgroen-lichtbruin-gelazuurd-50610739/) | €61.96 | solid wood, survives a move |
 
 ## Decision
 

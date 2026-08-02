@@ -3,15 +3,15 @@ type: leon-item
 title: deal with the remaining mice
 category: home-maintenance
 kind: do
-status: todo
+status: researching
 priority: high
-budget: ""
+budget: "48"
 picked: ""
-deniz_rec: ""
-notes: ""
+deniz_rec: "[Swissinno SuperCat 2-pack](https://www.bol.com/nl/nl/p/muizenval-supercat-2-stuks/9200000010533321/) — 3 packs (6 traps) + peanut butter as bait"
+notes: "skip bait gels — out of stock or badly reviewed; peanut butter works"
 tags: [leon]
 creation date: 2026-07-31 21:32
-modification date: 2026-07-31 21:32
+modification date: 2026-08-02 12:00
 ---
 # deal with the remaining mice
 
@@ -21,16 +21,15 @@ Finish the mice off: high-attraction bait plus traps that kill instantly, so not
 
 ## Deniz's recommendation
 
-*Deniz's pick + one line on why. Mirror the short version into `deniz_rec` so it shows in the dashboard.*
+[Swissinno SuperCat 2-pack](https://www.bol.com/nl/nl/p/muizenval-supercat-2-stuks/9200000010533321/) — buy 3 packs (6 traps, €44.85), bait with peanut butter. Hygienic no-touch release beats wooden traps, costs a third of going electric. Skip dedicated bait gels — out of stock or badly reviewed on bol.
 
 ## Options
 
-*Alternatives to compare — fill in with links + price, mark the winner in `picked`.*
-
 | Option | Price | Why |
 | --- | --- | --- |
-|  |  |  |
-|  |  |  |
+| [Protect Home houten muizenval 2-pack](https://www.bol.com/nl/nl/p/protect-home-muizenval-hout-ongediertebestrijding-2-stuks/9200000131171259/) | €6.85 | cheapest instant-kill snap trap; 3 packs = 6 traps ~€21 |
+| [Swissinno SuperCat 2-pack](https://www.bol.com/nl/nl/p/muizenval-supercat-2-stuks/9200000010533321/) | €14.95 | safe to arm, no-touch emptying, reusable |
+| [Protect Home elektronische muizenval](https://www.bol.com/nl/nl/p/elektronische-muizenval-tegen-muizen-protect-home/9200000130805036/) | €30.20 | electric instant-kill, ~100 mice per battery set |
 
 ## Decision
 

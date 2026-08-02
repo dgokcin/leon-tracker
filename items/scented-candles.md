@@ -5,13 +5,13 @@ category: home-scent
 kind: buy
 status: todo
 priority: high
-budget: ""
+budget: "39"
 picked: ""
 deniz_rec: "[Atelier Rebul Istanbul candle 210g](https://atelierrebul.nl/products/istanbul-geurkaars-210g)"
 notes: ""
 tags: [leon]
 creation date: 2026-07-31 21:32
-modification date: 2026-08-01 00:00
+modification date: 2026-08-02 12:00
 ---
 # scented candles
 
@@ -29,7 +29,7 @@ Scented candles for the living room.
 
 | Option | Price | Why |
 | --- | --- | --- |
-| [Atelier Rebul Istanbul 210g](https://atelierrebul.nl/products/istanbul-geurkaars-210g) |  | Deniz's rec |
+| [Atelier Rebul Istanbul 210g](https://atelierrebul.nl/products/istanbul-geurkaars-210g) | €39.00 | Deniz's rec |
 |  |  |  |
 
 ## Decision

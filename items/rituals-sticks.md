@@ -5,13 +5,13 @@ category: home-scent
 kind: buy
 status: todo
 priority: high
-budget: ""
+budget: "31"
 picked: ""
 deniz_rec: "[Ritual of Hammam fragrance sticks 250ml](https://www.rituals.com/en-nl/the-ritual-of-hammam-fragrance-sticks-250ml-1120423.html) — good for toilet"
 notes: ""
 tags: [leon]
 creation date: 2026-07-31 21:32
-modification date: 2026-08-01 00:00
+modification date: 2026-08-02 12:00
 ---
 # fragrance sticks from rituals
 
@@ -29,7 +29,7 @@ Rituals reed diffuser / fragrance sticks. Pick scent + refill availability.
 
 | Option | Price | Why |
 | --- | --- | --- |
-| [Ritual of Hammam sticks 250ml](https://www.rituals.com/en-nl/the-ritual-of-hammam-fragrance-sticks-250ml-1120423.html) |  | Deniz's rec — toilet |
+| [Ritual of Hammam sticks 250ml](https://www.rituals.com/en-nl/the-ritual-of-hammam-fragrance-sticks-250ml-1120423.html) | €30.90 | Deniz's rec — toilet |
 |  |  |  |
 
 ## Decision
